@@ -4,6 +4,8 @@ const _last = require("lodash.last");
 const _get = require("lodash.get");
 const _repeat = require("lodash.repeat");
 
+let replacements = require('./replacements.js').markdownReplacements;
+
 function getParagraphTag(p) {
   const tags = {
     NORMAL_TEXT: "p",
@@ -99,24 +101,24 @@ function getText(element, { isHeader = false } = {}) {
 
   if (underline) {
     // Underline isn't supported in markdown so we'll use emphasis
-    text = `_${text}_`;
+    text = replacements.underline(text);
   }
 
   if (italic) {
-    text = `_${text}_`;
+    text = replacements.italic(text);
   }
 
   // Set bold unless it's a header
   if (bold & !isHeader) {
-    text = `**${text}**`;
+    text = replacements.bold(text);
   }
 
   if (strikethrough) {
-    text = `~~${text}~~`;
+    text = replacements.strikethrough(text);
   }
 
   if (link) {
-    return `[${text}](${link.url})`;
+    text = replacements.link(text, link.url);
   }
 
   return text;
@@ -152,7 +154,10 @@ function getCover(document) {
     : null;
 }
 
-function convertGoogleDocumentToJson(document) {
+function convertGoogleDocumentToJson(document, replacementObject) {
+  if (replacementObject) {
+    replacements = replacementObject;
+  }
   const { body, footnotes = {} } = document;
   const cover = getCover(document);
 

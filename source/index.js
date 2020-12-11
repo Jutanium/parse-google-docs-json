@@ -11,7 +11,7 @@ const docs = google.docs({
 });
 
 async function parseGoogleDocs(configuration = {}) {
-  console.log("Dan's version...");
+  console.log("update 3");
   const clientEmail =
     configuration.clientEmail || process.env.PARSE_GOOGLE_DOCS_CLIENT_EMAIL;
   const privateKey =
