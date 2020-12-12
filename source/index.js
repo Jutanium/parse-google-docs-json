@@ -1,6 +1,8 @@
 const googleapis = require("googleapis");
 const { google } = googleapis;
 
+const { htmlReplacements } = require("./replacements");
+
 const {
   convertGoogleDocumentToJson,
   convertJsonToMarkdown,
@@ -39,7 +41,7 @@ async function parseGoogleDocs(configuration = {}) {
   });
 
   function toJson() {
-    const jsonDocument = convertGoogleDocumentToJson(docsResponse.data);
+    const jsonDocument = convertGoogleDocumentToJson(docsResponse.data, htmlReplacements);
 
     return {
       metadata: { title: docsResponse.data.title },

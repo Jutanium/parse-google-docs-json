@@ -6,5 +6,13 @@ const markdownReplacements = {
   link: (text, url) => `[${text}](${url})`
 }
 
-module.exports = { markdownReplacements }
+const htmlReplacements = {
+  underline: text => `<u>${text}</u>`,
+  italic: text => `<i>${text}</i>`,
+  bold: text => `<b>${text}</b>`,
+  strikethrough: text => `<s>${text}</s>`,
+  link: (text, url) => `<a href="${url}">${text}</a>`
+}
+
+module.exports = { markdownReplacements, htmlReplacements }
 
