@@ -158,7 +158,9 @@ function getCover(document) {
 function cleanJoin(elArray) {
   return elArray
     .join(" ")
-    .replace(/\s([\,\.\:\;])/g, "$1");
+    .replace(/\s([\,\.\:\;\]\)])/g, "$1")
+    .replace(/([\[\(])\s/g, "$1");
+
 }
 
 function mapContent (content, footnoteIDs) {
