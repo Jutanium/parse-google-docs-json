@@ -40,12 +40,13 @@ function getNestedListIndent(level, listTag) {
 }
 
 function getTextFromParagraph(p) {
-  return p.elements
+  const text = p.elements
     ? p.elements
         .filter((el) => el.textRun && el.textRun.content !== "\n")
         .map((el) => (el.textRun ? getText(el) : ""))
         .join("")
     : "";
+  return text;
 }
 
 function getTableCellContent(content) {
@@ -154,6 +155,12 @@ function getCover(document) {
     : null;
 }
 
+function cleanJoin(elArray) {
+  return elArray
+    .join(" ")
+    .replace(/\s([\,\.\:\;])/g, "$1");
+}
+
 function mapContent (content, footnoteIDs) {
   const returnArray = [];
   content.forEach(({ paragraph, table }, i) => {
@@ -167,11 +174,10 @@ function mapContent (content, footnoteIDs) {
         const list = document.lists[listId];
         const listTag = getListTag(list);
 
-        const bulletContent = paragraph.elements
+        const bulletContent = cleanJoin(
+          paragraph.elements
           .map((el) => getBulletContent(document, el))
-          .join(" ")
-          .replace(" .", ".")
-          .replace(" ,", ",");
+        )
 
         const prev = content[i - 1];
         const prevListId = _get(prev, "paragraph.bullet.listId");
@@ -233,11 +239,7 @@ function mapContent (content, footnoteIDs) {
 
         if (tagContent.every((el) => el[tag] !== undefined)) {
           returnArray.push({
-            [tag]: tagContent
-              .map((el) => el[tag])
-              .join(" ")
-              .replace(" .", ".")
-              .replace(" ,", ","),
+            [tag]: cleanJoin(tagContent.map((el) => el[tag]))
           });
         } else {
           content.push(...tagContent);
