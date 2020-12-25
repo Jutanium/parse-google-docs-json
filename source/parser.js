@@ -154,17 +154,9 @@ function getCover(document) {
     : null;
 }
 
-function convertGoogleDocumentToJson(document, replacementObject) {
-  if (replacementObject) {
-    replacements = replacementObject;
-  }
-  const { body, footnotes = {} } = document;
-  const cover = getCover(document);
-
-  const content = [];
-  const footnoteIDs = {};
-
-  body.content.forEach(({ paragraph, table }, i) => {
+function mapContent (content, footnoteIDs) {
+  const returnArray = [];
+  content.forEach(({ paragraph, table }, i) => {
     // Paragraphs
     if (paragraph) {
       const tag = getParagraphTag(paragraph);
@@ -181,7 +173,7 @@ function convertGoogleDocumentToJson(document, replacementObject) {
           .replace(" .", ".")
           .replace(" ,", ",");
 
-        const prev = body.content[i - 1];
+        const prev = content[i - 1];
         const prevListId = _get(prev, "paragraph.bullet.listId");
 
         if (prevListId === listId) {
@@ -198,7 +190,7 @@ function convertGoogleDocumentToJson(document, replacementObject) {
             list.push(bulletContent);
           }
         } else {
-          content.push({
+          returnArray.push({
             [listTag]: [bulletContent],
           });
         }
@@ -240,7 +232,7 @@ function convertGoogleDocumentToJson(document, replacementObject) {
         });
 
         if (tagContent.every((el) => el[tag] !== undefined)) {
-          content.push({
+          returnArray.push({
             [tag]: tagContent
               .map((el) => el[tag])
               .join(" ")
@@ -256,18 +248,30 @@ function convertGoogleDocumentToJson(document, replacementObject) {
     // Table
     else if (table && table.tableRows.length > 0) {
       const [thead, ...tbody] = table.tableRows;
-      content.push({
+      returnArray.push({
         table: {
           headers: thead.tableCells.map(({ content }) =>
             getTableCellContent(content)
           ),
           rows: tbody.map((row) =>
-            row.tableCells.map(({ content }) => getTableCellContent(content))
+            row.tableCells.map(({ content: cellContent }) => mapContent(cellContent, footnoteIDs))
           ),
         },
       });
     }
   });
+  return returnArray.filter(obj => obj.p !== "");
+}
+
+function convertGoogleDocumentToJson(document, replacementObject) {
+  if (replacementObject) {
+    replacements = replacementObject;
+  }
+  const { body, footnotes = {} } = document;
+  const cover = getCover(document);
+
+  const footnoteIDs = {};
+  const content = mapContent(body.content, footnoteIDs);
 
   // Footnotes reference section (end of document)
   let formatedFootnotes = [];
