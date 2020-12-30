@@ -214,9 +214,11 @@ function mapContent (content, footnoteIDs, document) {
           if (el.inlineObjectElement) {
             const image = getImage(document, el);
             if (image) {
+              console.log("GOT HERE!")
               tagContent.push({
                 img: image,
               });
+              console.log(tagContent);
             }
           }
 
