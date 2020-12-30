@@ -59,6 +59,7 @@ function getTableCellContent(content) {
 function getImage(document, element) {
   const { inlineObjects } = document;
 
+
   if (!inlineObjects || !element.inlineObjectElement) {
     return null;
   }
@@ -163,7 +164,7 @@ function cleanJoin(elArray) {
 
 }
 
-function mapContent (content, footnoteIDs) {
+function mapContent (content, footnoteIDs, document) {
   const returnArray = [];
   content.forEach(({ paragraph, table }, i) => {
     // Paragraphs
@@ -212,11 +213,12 @@ function mapContent (content, footnoteIDs) {
           // EmbeddedObject
           if (el.inlineObjectElement) {
             const image = getImage(document, el);
-
             if (image) {
+              console.log("GOT HERE!")
               tagContent.push({
                 img: image,
               });
+              console.log(tagContent);
             }
           }
 
@@ -244,7 +246,7 @@ function mapContent (content, footnoteIDs) {
             [tag]: cleanJoin(tagContent.map((el) => el[tag]))
           });
         } else {
-          content.push(...tagContent);
+          returnArray.push(...tagContent);
         }
       }
     }
@@ -275,7 +277,7 @@ function convertGoogleDocumentToJson(document, replacementObject) {
   const cover = getCover(document);
 
   const footnoteIDs = {};
-  const content = mapContent(body.content, footnoteIDs);
+  const content = mapContent(body.content, footnoteIDs, document);
 
   // Footnotes reference section (end of document)
   let formatedFootnotes = [];
